@@ -29,6 +29,23 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Root path handler for Vercel deployment
+  if (req.method === 'GET' && (req.url === '/' || req.url === '')) {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ 
+      status: 'ok', 
+      service: SERVICE_NAME,
+      message: 'Issuance service is running',
+      endpoints: {
+        health: '/health',
+        issue: '/issue (POST)'
+      },
+      timestamp: new Date().toISOString()
+    }));
+    return;
+  }
+
   // Health check endpoint
   if (req.method === 'GET' && req.url === '/health') {
     res.statusCode = 200;
@@ -42,7 +59,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Issue credential endpoint
-  if (req.method === 'POST' && req.url === '/issue') {
+  if (req.method === 'POST' && (req.url === '/issue' || req.url === '/api/issue')) {
     let body = '';
     
     req.on('data', chunk => {
